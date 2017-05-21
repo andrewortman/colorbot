@@ -16,8 +16,8 @@ random.shuffle(allcolors)
 test_file = open("test.csv", "w")
 train_file = open("train.csv", "w")
 
-test_file.writelines("\n".join(allcolors[0:TEST_SIZE+1]))
-train_file.writelines("\n".join(allcolors[TEST_SIZE+1:]))
+test_file.writelines("\n".join(allcolors[0:TEST_SIZE]))
+train_file.writelines("\n".join(allcolors[TEST_SIZE:]))
 
 test_file.close()
 train_file.close()
