@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-TEST_SIZE=500
+TEST_SIZE=1000
 
 import glob
 import random
