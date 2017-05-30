@@ -7,7 +7,6 @@ import re
 name_pattern = re.compile("^[a-zA-Z ]+$")
 def name_valid(name):
 	return re.match(name_pattern, name) is not None
-	
 
 def hex_to_rgb(hex):
 	i = int(hex, 16)
@@ -23,7 +22,6 @@ with open("./colors.json", "r") as colorfile:
 
 with open("db.csv", "wb") as csvfile:
 	writer = csv.writer(csvfile)
-	writer.writerow(["name", "red", "blue", "green"])
 	for code in colors:
 		color = colors[code]
 		name = color["name"]
