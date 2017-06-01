@@ -91,13 +91,13 @@ if __name__ == "__main__":
         "--batch-size", type=int, default=32, help="minibatch size",
     )
     parser.add_argument(
-        "--learning-rate", type=float, default=1e-3, help="initial learning rate",
+        "--learning-rate", type=float, default=2e-3, help="initial learning rate",
     )
     parser.add_argument(
-        "--learning-rate-decay", type=float, default=0.98, help="initial learning rate decay over time",
+        "--learning-rate-decay", type=float, default=0.9, help="initial learning rate decay over time",
     )
     parser.add_argument(
-        "--grad-clip", type=float, default=1.0, help="gradient clip (absolute)",
+        "--grad-clip", type=float, default=0.1, help="gradient clip (absolute)",
     )
     parser.add_argument(
         "--rnn-layers", type=int, default=3, help="number of rnn layers",
