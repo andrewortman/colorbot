@@ -20,6 +20,7 @@ with open("./colors.json", "r") as colorfile:
     colors = json.load(colorfile)
     colors = colors["colors"]
 
+colors_written = {}
 with open("db.csv", "wb") as csvfile:
 	writer = csv.writer(csvfile)
 	for code in colors:
@@ -30,7 +31,9 @@ with open("db.csv", "wb") as csvfile:
 			continue
 		
 		name = name.lower()
-		
-		hex = color["hex"]
-		(r, g, b) = hex_to_rgb(hex)
-		writer.writerow([name, r, g, b])
+
+		if name not in colors_written:
+			colors_written[name] = 1
+			hex = color["hex"]
+			(r, g, b) = hex_to_rgb(hex)
+			writer.writerow([name, r, g, b])

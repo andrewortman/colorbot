@@ -23,6 +23,10 @@ def write_vocab(name, vocab):
 
 allcolors = []
 vocab = {}
+color_names = {}
+lines_seen = {}
+
+duplicates = 0
 for file in glob.glob("./*/db.csv"):
 	fp = open(file, "rb")
 	reader = csv.reader(fp)
@@ -36,7 +40,20 @@ for file in glob.glob("./*/db.csv"):
 		for char in color:
 			if char not in vocab:
 				vocab[char] = 1
-		
+
+		if color in color_names:
+			color_names[color] += 1
+			print "duplicate: " + color + ", " + str(color_names[color])
+		else:
+			color_names[color] = 1
+
+		line_merged = ";".join(line)
+		if line_merged in lines_seen:
+			print "complete duplicate - ignoring: " + str(line)
+			continue
+
+		lines_seen[line_merged] = 1
+
 		allcolors.append([color, red, green, blue])
 	fp.close()
 

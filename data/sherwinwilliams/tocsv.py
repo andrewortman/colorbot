@@ -9,6 +9,8 @@ line_regex = re.compile('^([\d]{4})\s+?([a-zA-Z ]+?)\s+?(\d{1,3})\s+?(\d{1,3})\s
 rawfile = open("paints.raw", "r")
 outfile = open("db.csv", "w")
 csvwriter = csv.writer(outfile)
+
+colors_written = {}
 for line in rawfile:
 	line = line.strip()
 	matches = re.match(line_regex, line)
@@ -21,4 +23,6 @@ for line in rawfile:
 	if len(name.split(" ")) > 3:
 		continue
 
-	csvwriter.writerow([name, r, g, b])
+	if name not in colors_written:
+		colors_written[name] = 1
+		csvwriter.writerow([name, r, g, b])
