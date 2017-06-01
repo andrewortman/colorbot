@@ -54,7 +54,7 @@ def model_fn(features, labels, mode, params):
 
     # export outputs
     exports_dict = {
-        "color": tf.estimator.export.PredictOutput(predictions),
+        "color": tf.estimator.export.PredictOutput(predictions_dict),
     }
 
     loss = None
