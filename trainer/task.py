@@ -12,7 +12,7 @@ def input_fn(csv_file, batch_size, epochs=None):
         record_defaults=[[""],[0.0],[0.0],[0.0]]
         name, red, green, blue = tf.decode_csv(value, record_defaults)
         batches = tf.train.shuffle_batch(
-            [name, tf.stack([red/255.0,blue/255.0,green/255.0])],
+            [name, tf.stack([red/255.0,green/255.0,blue/255.0])],
             batch_size,
             min_after_dequeue=100,
             num_threads=4,
@@ -53,21 +53,20 @@ def main(_):
             print sample_colors[i] + ": " + str(255*p["color"])
 
 
-        print "Exporting model..."
         export_dir = None
         if FLAGS.export_dir is not None:
             export_dir = FLAGS.export_dir
         elif FLAGS.job_dir is not None:
             export_dir = FLAGS.job_dir + "/exports"
-        else:
-            # local exports
-            # TODO: dont export if export_dir is not set
-            export_dir = "exports"
 
-        feature_spec = {"input": tf.constant("", shape=[1], dtype=tf.string)}
-        serving_input_fn = tf.estimator.export.build_raw_serving_input_receiver_fn(feature_spec)
-        export_dir = network.export_savedmodel(export_dir,serving_input_fn)
-        print "Exported to " + export_dir
+        if export_dir is None:
+            print "Skipping model export (set job-dir or export-dir)"
+        else:
+            print "Exporting model..."
+            feature_spec = {"input": tf.constant("", shape=[1], dtype=tf.string)}
+            serving_input_fn = tf.estimator.export.build_raw_serving_input_receiver_fn(feature_spec)
+            export_dir = network.export_savedmodel(export_dir,serving_input_fn)
+            print "Exported to " + export_dir
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
