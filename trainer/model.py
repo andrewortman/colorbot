@@ -44,7 +44,7 @@ def model_fn(features, labels, mode, params):
 
     # output sigmoid
     W = tf.Variable(tf.random_uniform((rnn_cells, 3), -1, 1), dtype=tf.float32, name="W")
-    b = tf.Variable(tf.random_uniform((3, 1), -1, 1), name="b")
+    b = tf.Variable(tf.random_uniform((1, 3), -1, 1), name="b")
 
     # predict
     predictions = tf.sigmoid(tf.matmul(rnn_out, W) + b)
