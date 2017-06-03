@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-TEST_SIZE=1000
+TEST_SIZE=500
 
 import glob
 import random
@@ -36,7 +36,7 @@ for file in glob.glob("./*/db.csv"):
 		red = line[1]
 		green = line[2]
 		blue = line[3]
-		
+
 		for char in color:
 			if char not in vocab:
 				vocab[char] = 1
