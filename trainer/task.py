@@ -1,18 +1,20 @@
 import tensorflow as tf
-
 import argparse
 import sys
+
 import model
+import util
+
 
 def input_fn(csv_file, batch_size, epochs=None):
     def _input_fn():
         filename_queue = tf.train.string_input_producer([csv_file], num_epochs=epochs)
         reader = tf.TextLineReader(skip_header_lines=True)
         _, value = reader.read(filename_queue)
-        record_defaults=[[""],[0.0],[0.0],[0.0]]
+        record_defaults = [[""], [0.0], [0.0], [0.0]]
         name, red, green, blue = tf.decode_csv(value, record_defaults)
         batches = tf.train.shuffle_batch(
-            [name, tf.stack([red/255.0,green/255.0,blue/255.0])],
+            [name, tf.stack([red / 255.0, green / 255.0, blue / 255.0])],
             batch_size,
             min_after_dequeue=100,
             num_threads=4,
@@ -20,17 +22,23 @@ def input_fn(csv_file, batch_size, epochs=None):
             allow_smaller_final_batch=True)
 
         return {"input": batches[0]}, batches[1]
+
     return _input_fn
 
+
 FLAGS = None
+
+
 def main(_):
     params = {
         "learning_rate": FLAGS.learning_rate,
         "learning_rate_decay": FLAGS.learning_rate_decay,
         "grad_clip": FLAGS.grad_clip,
-        "rnn_layers": FLAGS.rnn_layers,
+
         "rnn_cells": FLAGS.rnn_cells,
-        "dropout": FLAGS.dropout,
+        "rnn_dropout": FLAGS.rnn_dropout,
+        "output_cells": FLAGS.output_cells,
+        "output_dropout": FLAGS.output_dropout,
     }
     tf.logging.set_verbosity(tf.logging.INFO)
 
@@ -43,15 +51,16 @@ def main(_):
         network.evaluate(input_fn(FLAGS.test_data, FLAGS.batch_size, 1))
 
         # try some color
-        sample_colors = ["sunshine yellow", "magenta", "galactic blue", "very light grey", "pickle", "hazel eyes", "dark grey"]
+        sample_colors = ["sunshine yellow", "magenta", "galactic blue", "very light grey", "pickle", "hazel eyes",
+                         "dark grey"]
+
         def prediction_input():
             inputs = tf.train.string_input_producer(sample_colors, num_epochs=1)
             return {"input": inputs.dequeue_many(len(sample_colors))}
 
         predictions = network.predict(prediction_input)
         for i, p in enumerate(predictions):
-            print sample_colors[i] + ": " + str(255*p["color"])
-
+            print sample_colors[i] + ": " + str(255 * p["color"])
 
         export_dir = None
         if FLAGS.export_dir is not None:
@@ -65,11 +74,13 @@ def main(_):
             print "Exporting model..."
             feature_spec = {"input": tf.constant("", shape=[1], dtype=tf.string)}
             serving_input_fn = tf.estimator.export.build_raw_serving_input_receiver_fn(feature_spec)
-            export_dir = network.export_savedmodel(export_dir,serving_input_fn)
+            export_dir = network.export_savedmodel(export_dir, serving_input_fn)
             print "Exported to " + export_dir
 
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
     parser.register("type", "bool", lambda v: v.lower() == "true")
     parser.add_argument(
         "--train-data", type=str, default="./data/train.csv", help="Path to the training data.")
@@ -90,24 +101,35 @@ if __name__ == "__main__":
         "--batch-size", type=int, default=32, help="minibatch size",
     )
     parser.add_argument(
-        "--learning-rate", type=float, default=2e-3, help="initial learning rate",
+        "--learning-rate", type=float, default=2e-3,
+        help="initial learning rate",
     )
     parser.add_argument(
-        "--learning-rate-decay", type=float, default=0.9, help="initial learning rate decay over time",
+        "--learning-rate-decay", type=float, default=0.9,
+        help="initial learning rate decay over time",
     )
     parser.add_argument(
-        "--grad-clip", type=float, default=0.1, help="gradient clip (absolute)",
+        "--grad-clip", type=float, default=0.1,
+        help="gradient clip (absolute)",
+    )
+
+    parser.add_argument(
+        "--rnn-cells", type=util.layer_list_type(allow_empty=False), default="32,32",
+        help="rnn cell layer sizes seperated with commas",
     )
     parser.add_argument(
-        "--rnn-layers", type=int, default=3, help="number of rnn layers",
+        "--rnn-dropout", type=float, default=0.5,
+        help="dropout (0->1) to add to rnn outputs. 0 = no dropout, 1.0 = full dropout",
+    )
+
+    parser.add_argument(
+        "--output-cells", type=util.layer_list_type(allow_empty=True), default="",
+        help="additional output layer sizes seperated with commas",
     )
     parser.add_argument(
-        "--rnn-cells", type=int, default=128, help="number of rnn cells per layer",
+        "--output-dropout", type=float, default=0.5,
+        help="dropout (0->1) to add to non-final outputs. 0 = no dropout, 1.0=full_dropout",
     )
-    parser.add_argument(
-        "--dropout", type=float, default=0.5, help="dropout (0->1) to add to rnn outputs. 0 = no dropout, 0.999+ = full dropout",
-    )
-    # todo: rnn cell type
 
     FLAGS, unparsed = parser.parse_known_args()
     tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
