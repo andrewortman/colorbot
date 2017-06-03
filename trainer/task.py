@@ -5,7 +5,6 @@ import sys
 import model
 import util
 
-
 def input_fn(csv_file, batch_size, epochs=None):
     def _input_fn():
         filename_queue = tf.train.string_input_producer([csv_file], num_epochs=epochs)
@@ -49,18 +48,6 @@ def main(_):
 
         # evaluate
         network.evaluate(input_fn(FLAGS.test_data, FLAGS.batch_size, 1))
-
-        # try some color
-        sample_colors = ["sunshine yellow", "magenta", "galactic blue", "very light grey", "pickle", "hazel eyes",
-                         "dark grey"]
-
-        def prediction_input():
-            inputs = tf.train.string_input_producer(sample_colors, num_epochs=1)
-            return {"input": inputs.dequeue_many(len(sample_colors))}
-
-        predictions = network.predict(prediction_input)
-        for i, p in enumerate(predictions):
-            print sample_colors[i] + ": " + str(255 * p["color"])
 
         export_dir = None
         if FLAGS.export_dir is not None:
