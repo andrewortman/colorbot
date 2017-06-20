@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tinyColorPicker/1.1.1/jqColorPicker.min.js"></script>
+
+<style>
+    .instructions {
+        background-color: #ddf8ff;
+        color: #0d092f;
+        border: #0d092f 1px solid;
+        padding: 10px;
+        margin-bottom: 20px;
+    }
+
+    .colortable table {
+        border-collapse: collapse;
+    }
+    .colortable td {
+        border: 1px solid black;
+        padding: 5px;
+    }
+
+    .colortable thead {
+        font-weight: bold;
+    }
+    .colortable {
+        font-size: 14pt;
+    }
+</style>
+
+<div class="container">
+    <div class="instructions">
+        The table below contains a list of up to 10 color names, pulled from actual paint codes of paints sold in the United States. We want to see
+        how well the name of each color describes the actual color itself. We dont want you to find what the color actually looks like
+        on the internet, we want you to provide your own interpretation of what it <em>might</em> look like.<br/><br/>
+        In this task, we want you to use the color picker next to each name to find a color that you think the name matches the best.
+        So if the name was "deep red", you may choose something like a dark red or a maroon. It's up to you though - use your imagination!<br/><br/>
+        Here are some rules:
+        <ul>
+            <li>
+                <strong>Please do not complete this task if you are colorblind.</strong> If you are a male, please go to this page
+                and complete a simple colorblindness test if you are unsure:
+                <a href="http://enchroma.com/test/#&ui-state=dialog" target="_blank">http://enchroma.com/test/#&ui-state=dialog</a>. Please note,
+                we'll be able to identify those with colorblindness fairly easily, so please don't attempt this test if you do have any form of colorblindness.
+            </li>
+            <li>
+                <strong>Do NOT look up the color on the internet</strong> The goal of this task is not how well a turker can come up with the same color, the goal is
+                to see if the color actually describes itself accurately.
+            </li>
+            <li>
+                <strong>There will be weird color names - and that is OK</strong> Color names like "Majestic Mystery" and "Perfect Nature" don't really describe
+                a color. That is fine - the goal of this task is to weed those colors out, so pick a color but don't worry too much on how close you get with other turkers.
+            </li>
+        </ul>
+    </div>
+    <div class="colortable">
+        <table>
+            <thead>
+                <tr>
+                    <td>Color Name</td>
+                    <td>Color Picker</td>
+                </tr>
+            </thead>
+            <tbody id="tbody">
+            </tbody>
+        </table>
+    </div>
+    <script type="application/javascript">
+        $(function() {
+          $("button[type=submit]").attr("disabled", true)
+          var COLORS=${colors};
+          var colorRows = $.map(COLORS, function(color, key) {
+            var name = $("<td>").text(color);
+            var pickerInput = $("<input>").attr("name", key).attr("type", "text").attr("placeholder", "Click to select a color..").colorPicker({
+              animationSpeed: 50,
+              opacity: false,
+              renderCallback: function($el, toggled) {
+                var emptyFound = false;
+                $("input[type=text]").each(function(el) {
+                  if($(this).val() == "") {
+                    emptyFound = true;
+                    return false;
+                  }
+                });
+                $("button[type=submit]").attr("disabled", emptyFound)
+              }
+            });
+
+
+            var picker = $("<td>").append(pickerInput);
+            return $("<tr>").append(name).append(picker);
+          });
+          $("#tbody").append(colorRows)
+
+        })
+      </script>
+</div>
+</body>
+</html>
