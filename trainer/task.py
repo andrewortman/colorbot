@@ -13,7 +13,7 @@ def input_fn(csv_file, batch_size, epochs=None):
         record_defaults = [[""], [0.0], [0.0], [0.0]]
         name, red, green, blue = tf.decode_csv(value, record_defaults)
         batches = tf.train.shuffle_batch(
-            [name, tf.stack([red / 255.0, green / 255.0, blue / 255.0])],
+            [name, tf.stack([red/255.0, green/255.0, blue/255.0])],
             batch_size,
             min_after_dequeue=100,
             num_threads=4,
@@ -27,11 +27,9 @@ def input_fn(csv_file, batch_size, epochs=None):
 
 FLAGS = None
 
-
 def main(_):
     params = {
         "learning_rate": FLAGS.learning_rate,
-        "learning_rate_decay": FLAGS.learning_rate_decay,
         "grad_clip": FLAGS.grad_clip,
 
         "rnn_cells": FLAGS.rnn_cells,
@@ -85,15 +83,12 @@ if __name__ == "__main__":
 
     # hyperparameters
     parser.add_argument(
-        "--batch-size", type=int, default=32, help="minibatch size",
+        "--batch-size", type=int, default=32,
+        help="minibatch size",
     )
     parser.add_argument(
         "--learning-rate", type=float, default=2e-3,
-        help="initial learning rate",
-    )
-    parser.add_argument(
-        "--learning-rate-decay", type=float, default=0.9,
-        help="initial learning rate decay over time",
+        help="learning rate for ADAM optimizer",
     )
     parser.add_argument(
         "--grad-clip", type=float, default=0.1,

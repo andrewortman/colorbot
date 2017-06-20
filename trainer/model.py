@@ -24,7 +24,7 @@ def model_fn(features, labels, mode, params):
 
     def rnn_layer(size):
         keep_prob = 1.0 - params["rnn_dropout"]
-        l = tf.contrib.rnn.LSTMCell(size)
+        l = tf.contrib.rnn.GRUCell(size)
         if keep_prob < 1.0 and mode is tf.estimator.ModeKeys.TRAIN:
             l = tf.contrib.rnn.DropoutWrapper(l, output_keep_prob=keep_prob)
         return l
@@ -99,15 +99,10 @@ def model_fn(features, labels, mode, params):
         tf.summary.histogram("loss/"+mode, rsme)
 
     if mode is tf.estimator.ModeKeys.TRAIN:
-        # calculate learning rate
-        learning_rate_init = params["learning_rate"]
-        learning_rate_decay = params["learning_rate_decay"]
-        decay_steps = 1e5  # TODO: should this be tunable?
-        global_step = tf.train.get_global_step()
-        learning_rate = tf.train.exponential_decay(learning_rate_init, global_step, decay_steps, learning_rate_decay)
+        learning_rate = params["learning_rate"]
 
         # set up optimizer
-        optimizer = tf.train.RMSPropOptimizer(learning_rate)
+        optimizer = tf.train.AdamOptimizer(learning_rate)
         grads_and_vars = optimizer.compute_gradients(loss)
 
         # clip gradients to help with exploding gradients in RNN's
@@ -115,6 +110,7 @@ def model_fn(features, labels, mode, params):
         grads_and_vars = [(tf.clip_by_value(g, -grad_clip, grad_clip), v) for g, v in grads_and_vars]
 
         # train
+        global_step = tf.train.get_global_step()
         train_op = optimizer.apply_gradients(grads_and_vars, global_step=global_step)
 
         # training summaries (picked up by tf.Estimator)
