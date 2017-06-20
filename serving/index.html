@@ -1,0 +1,147 @@
+<html>
+<head>
+    <title>Color Bot</title>
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.min.js"
+      integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+      crossorigin="anonymous"></script>
+
+    <script
+      src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+      integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+      crossorigin="anonymous"></script>
+
+    <link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono|Roboto+Slab:400,700" rel="stylesheet">
+    <style>
+        .container {
+            display: block;
+            width: 800px;
+            padding: 15px;
+            background-color: white;
+            border: black 1px solid;
+            margin: 0 auto;
+        }
+
+        .input_container {
+        }
+
+        .input_container input {
+            width: 100%;
+            margin: 0px;
+            padding: 0px;
+            text-align: center;
+            font-size: 16pt;
+        }
+
+        .output_container {
+            padding: 10px;
+            border-bottom: 1px rgba(0,0,0,.2) solid;
+            font-family: 'Lato', serif;
+            font-size: 10pt;
+        }
+
+        .output_container .details {
+            font-size: 16pt;
+            font-family: 'Roboto Mono', serif;
+            vertical-align: middle;
+        }
+
+        .swatch {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background-color: red;
+            border: 1px solid black;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+
+        .description {
+            font-family: 'Lato', sans-serif;
+            font-size: 12pt;
+            vertical-align: middle;
+        }
+
+        .description h2 {
+            font-family: 'Roboto Slab', serif;
+            font-size: 24pt;
+            padding: 0px;
+            margin: 0px;
+        }
+
+        .description strong {
+            font-weight: 700;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="input_container">
+            <input id="color_input" title="color" placeholder="Start Typing a Color" />
+        </div>
+        <div class="output_container" style="display:none">
+            <div style="display: inline-block">
+                <span class="swatch"></span>
+                <span class="details">
+                    Chartreuse
+                </span>
+            </div>
+        </div>
+        <div class="description" >
+            <h2>What is this?</h2>
+            This is an experiment using machine learning techniques to generate color based on a color name. Using over existing 12,000 color names
+            scraped on the internet, I trained a model that accepted character-level input and generated a RGB color as the output. I've found it to
+            be very accurate with existing colors, and can get pretty close to coming up with some reasonable for made up color names.
+            <br/>
+            <br/>
+            <strong>Want to learn more?</strong> Click here for the blog post.
+        </div>
+    </div>
+    <script type="application/javascript">
+        function vec2rgbstr(vec) {
+            red = Math.round(vec[0] * 255);
+            green = Math.round(vec[1] * 255);
+            blue = Math.round(vec[2] * 255);
+
+            return "rgb( " + red + "," + green + "," + blue + " )";
+        }
+
+        $(function() {
+            var timeout = null;
+
+            $("#color_input").on('input', function() {
+                var colorname = $(this).val()
+                filtered = colorname;
+                if(filtered == "") {
+                    return;
+                }
+
+                clearTimeout(timeout);
+                timeout = setTimeout(function() {
+                    console.log("color name: " + colorname)
+                    $.ajax({
+                        url: "/v1/predict",
+                        method: "get",
+                        data: {
+                            color: filtered,
+                        },
+                    }).then(function(response) {
+                        var finalColor = vec2rgbstr(response[response.length-1])
+                        $("body,.swatch").animate({backgroundColor: finalColor}, 200)
+                        var letters = []
+                        $(".details").html('');
+                        for(var i = 0; i < response.length; i++) {
+                            var span = $("<span>").text(filtered[i]).css({backgroundColor: vec2rgbstr(response[i])})
+                            $(".details").append(span);
+                        }
+
+                        $(".output_container").slideDown()
+                    });
+                }, 150)
+            });
+
+        });
+    </script>
+</body>
+</html>
