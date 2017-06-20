@@ -22,6 +22,6 @@ setup(
         "License :: OSI Approved :: MIT License"
     ],
     install_requires = [
-        "tensorflow-gpu==1.0.1",
+        "tensorflow-gpu==1.2.0",
     ],
 )
