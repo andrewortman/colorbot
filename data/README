@@ -1,3 +1,7 @@
-Data in this directory belongs to their respectful owners. No copyright infringement intended
+Data in the `scraped` directory belongs to their respectful owners. No copyright infringement intended. 
 
-Scripts written in this directory were written as fast as possible. Code quality was not important here
+I first wrote quick-and-hacky scrapers for a variety of color name sources and put the results in the `scraped` folder. I then took the results from that,
+and paid Amazon Mechanical Turk to have 5 different people come up with their own color given the color name, that way I can see how close the actual color is
+to everyone's guesses as well as determine a 'weighting' for each example during training.
+
+Scripts written in this directory were written as fast as possible. Code quality was not important here.
