@@ -21,8 +21,8 @@ def predict():
 	# validation here
 
 	color_model = model.signature_def["color"]
-	input = session.graph.get_tensor_by_name(color_model.inputs["inputs"].name)
-	output = session.graph.get_tensor_by_name(color_model.outputs["outputs"].name)
+	input = session.graph.get_tensor_by_name(color_model.inputs["input"].name)
+	output = session.graph.get_tensor_by_name(color_model.outputs["color"].name)
 
 	queries = []
 	for i in range(0, len(color_query)):
